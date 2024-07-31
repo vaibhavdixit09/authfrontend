@@ -1,0 +1,111 @@
+/* .auth-container {
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.auth-heading {
+  font-size: 3rem;
+  margin-bottom: 2rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-input {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  outline: none;
+}
+
+.auth-button {
+  margin-bottom: 10px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.75rem 1.5rem;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease, transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 600px) {
+  .auth-heading {
+    font-size: 2.5rem;
+  }
+
+  .auth-form {
+    width: 90%;
+  }
+
+  .auth-input,
+  .auth-button {
+    font-size: 1rem;
+  }
+} */
+.purple-bg {
+  background-image: url("../assets/login bg.jpg");
+}
+
+.button {
+  /* margin: 0 auto; */
+  width: 40%;
+  background-image: linear-gradient(
+    150.88deg,
+    #281870 40.16%,
+
+    #321e8a 55.72%
+  );
+  border-radius: 5px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: "Inter UI", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  /* height: 2rem; */
+  padding: 10px;
+
+  text-align: center;
+  text-shadow: rgba(0, 0, 0, 0.25) 0 3px 8px;
+  transition: all 0.5s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button:hover {
+  box-shadow: rgba(80, 63, 205, 0.5) 0 1px 30px;
+  transition-duration: 0.1s;
+}
