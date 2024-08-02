@@ -9,11 +9,10 @@ import { RxCross2 } from "react-icons/rx";
 import Table from "./Table";
 import EditModal from "./EditModal";
 
-const AdminPanel = () => {
+const ManagerPanel = () => {
   // const [tableRole, setTableRole] = useState("");
   const [email, setEmail] = useState("");
   const [employeeList, setEmployeeList] = useState([]);
-  const [managerList, setManagerList] = useState([]);
   const [status, setStatus] = useState("Loading...");
   const [verificationMessage, setVerificationMessage] = useState("");
   const [verificationStatus, setVerificationStatus] = useState("");
@@ -49,6 +48,7 @@ const AdminPanel = () => {
         }
         const user = await response.json();
         console.log(user, "pop");
+        setEmployeeList(user.assigned_employees);
         setRole(user.role);
         setEmail(user.email);
         setStatus(user.isVerified ? "Verified" : "Not Verified");
@@ -94,67 +94,19 @@ const AdminPanel = () => {
     navigate("/login");
   };
 
-  const refreshData = async () => {
+  const handleSave = async (task) => {
     try {
-      const employeeResponse = await fetch(
-        "http://localhost:4000/api/v1/get-all/employee",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const employeeData = await employeeResponse.json();
-      setEmployeeList(employeeData.data);
-
-      const managerResponse = await fetch(
-        "http://localhost:4000/api/v1/get-all/manager",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const managerData = await managerResponse.json();
-      setManagerList(managerData.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (role === "admin" && status === "Verified") {
-      refreshData();
-    }
-  }, [selectedTable, role, status]);
-
-  const openEditModal = (item) => {
-    setCurrentItem(item);
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async (updatedUser) => {
-    try {
-      console.log(updatedUser, "updated modal");
-      const response = await fetch(
-        `http://localhost:4000/api/v1/update/${updatedUser._id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify(updatedUser),
-        }
-      );
+      const response = await fetch(`http://localhost:4000/api/v1/assign-task`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(task),
+      });
       if (!response.ok) {
         throw new Error("Failed to update item");
       }
-      // Refresh the relevant table data
-      await refreshData();
-      setIsModalOpen(false); // Close the modal after saving
     } catch (error) {
       console.error("Error updating item:", error);
     }
@@ -224,70 +176,9 @@ const AdminPanel = () => {
         <p>{verificationMessage}</p>
       )}
 
-      <div className="tabs p-4 transition-all duration-700 flex gap-2">
-        <button
-          className={`rounded-md tab-button p-2 transition-all duration-300 ease-in-out ${
-            selectedTable === "employee"
-              ? "bg-[#281870]  text-white"
-              : "bg-gray-200 text-black"
-          }`}
-          onClick={() => setSelectedTable("employee")}
-        >
-          Employee
-        </button>
-        <button
-          className={`rounded-md tab-button p-2 transition-all duration-300 ease-in-out ${
-            selectedTable === "manager"
-              ? "bg-[#281870]  text-white"
-              : "bg-gray-200 text-black"
-          }`}
-          onClick={() => setSelectedTable("manager")}
-        >
-          Manager
-        </button>
-        <button
-          className={`rounded-md tab-button p-2 transition-all duration-300 ease-in-out ${
-            selectedTable === "teams"
-              ? "bg-[#281870]  text-white"
-              : "bg-gray-200 text-black"
-          }`}
-          onClick={() => setSelectedTable("teams")}
-        >
-          Teams
-        </button>
-      </div>
-      {role === "admin" && status === "Verified" && (
-        <>
-          {selectedTable === "employee" && (
-            <Table
-              data={employeeList}
-              onEdit={openEditModal}
-              roles={"employee"}
-            />
-          )}
-          {selectedTable === "manager" && (
-            <Table
-              data={managerList}
-              onEdit={openEditModal}
-              roles={"manager"}
-            />
-          )}
-          {selectedTable === "teams" && (
-            <Table data={managerList} onEdit={openEditModal} roles={"teams"} />
-          )}
-        </>
-      )}
-
-      {isModalOpen && (
-        <EditModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          item={currentItem}
-          onSave={handleSave} // Pass the handleSave function
-        />
-      )}
+      <Table data={employeeList} onEdit={handleSave} roles={"taskTable"} />
     </div>
   );
 };
 
-export default AdminPanel;
+export default ManagerPanel;

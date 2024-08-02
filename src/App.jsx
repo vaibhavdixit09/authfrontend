@@ -15,7 +15,7 @@ import AdminPanel from "./components/AdminPanel";
 import VerificationPage from "./components/VerificationPage";
 import "./index.css";
 import EmployeePanel from "./components/EmployeePanel";
-import Table from "./components/Table";
+import ManagerPanel from "./components/ManagerPanel";
 
 function App() {
   return (
@@ -33,6 +33,10 @@ function App() {
           <Route
             path="/employee-panel"
             element={<ProtectedRoute element={EmployeePanel} />}
+          />
+          <Route
+            path="/manager-panel"
+            element={<ProtectedRoute element={ManagerPanel} />}
           />
           <Route path="/verify-email" element={<VerificationPage />} />
         </Routes>
