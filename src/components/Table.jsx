@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PencilIcon } from "@heroicons/react/24/solid";
 import {
   ArrowDownTrayIcon,
@@ -19,8 +19,12 @@ import {
 import EditModal from "./EditModal";
 import MemberModal from "./MemberModal";
 import EditTaskModal from "./EditTaskModal";
+import TaskShowModal from "./TaskShowModal";
 
 const Table = ({ data, onEdit, roles }) => {
+  // console.log(data, "for task table");
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [taskShowModalOpen, setTaskShowModalOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [memberModalOpen, setMemberModalOpen] = useState(false);
@@ -29,7 +33,7 @@ const Table = ({ data, onEdit, roles }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const [currentMemberData, setCurrentMemberData] = useState(null);
-
+  const [alltasks, setAllTasks] = useState([]);
   const ITEMS_PER_PAGE = 4;
 
   const TABLE_HEAD = [
@@ -61,8 +65,22 @@ const Table = ({ data, onEdit, roles }) => {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-  // console.log(paginatedData, "PD");
-
+  const GetAllTasks = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:4000/api/v1/get-all-tasks"
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch task data");
+      }
+      const allTasksData = await response.json();
+      // console.log("all task", allTasksData.allTask);
+      setAllTasks(allTasksData.allTask);
+    } catch (err) {
+      console.log("error while getting tasks", err);
+    }
+  };
+  // console.log(alltasks);
   const handleEdit = (item) => {
     if (roles === "taskTable") {
       setTaskModalOpen(true);
@@ -75,6 +93,8 @@ const Table = ({ data, onEdit, roles }) => {
 
   const closeModal = () => {
     setModalOpen(false);
+    console.log("lll");
+    GetAllTasks();
     setMemberModalOpen(false);
     setTaskModalOpen(false);
     setCurrentItem(null);
@@ -86,7 +106,6 @@ const Table = ({ data, onEdit, roles }) => {
     closeModal();
   };
   const handleTaskSubmit = (taskData) => {
-    console.log("rask handle subm");
     onEdit(taskData);
   };
   const handleMemberClick = async (memberId) => {
@@ -118,10 +137,48 @@ const Table = ({ data, onEdit, roles }) => {
       setCurrentPage((prev) => prev + 1);
     }
   };
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setTaskShowModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setTaskShowModalOpen(false);
+    setSelectedTask(null);
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    try {
+      // Send a DELETE request to the server
+      const response = await fetch(
+        `http://localhost:4000/api/v1/delete-task/${taskId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete task");
+      }
+
+      // Optionally refresh the tasks list or update local state
+      // Example: Fetch updated task list or use a state management library to update the task list
+
+      console.log("Task deleted successfully with ID:", taskId);
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
+
+    // Close the modal and reset state
+    handleModalClose();
+  };
+  useEffect(() => {
+    GetAllTasks(); // Fetch all tasks on component mount
+  }, []);
 
   return (
-    <div>
-      <Card className="w-full relative z-10">
+    <div className="px-5 rounded-2xl">
+      <Card className="w-full  relative z-10">
         <CardHeader floated={false} shadow={false} className="rounded-none">
           <div className="flex flex-col justify-between gap-8 md:flex-row md:items-center">
             <div>
@@ -170,9 +227,9 @@ const Table = ({ data, onEdit, roles }) => {
               </tr>
             </thead>
             <tbody>
-              {paginatedData.map((item, _id) => {
+              {paginatedData.map((item, index) => {
                 const username = getUsername(item);
-                const { id, email, isVerified, role, assigned_manager, team } =
+                const { _id, email, isVerified, role, assigned_manager, team } =
                   item;
                 const teamInfo =
                   role === "manager" && team
@@ -183,8 +240,8 @@ const Table = ({ data, onEdit, roles }) => {
 
                 return (
                   role !== "admin" && (
-                    <tr key={_id}>
-                      <td className="p-3 border-b border-blue-gray-50">
+                    <tr key={item._id}>
+                      <td className="p-3 border-blue-gray-50">
                         <div className="flex items-center gap-3">
                           <div className="flex flex-col">
                             <Typography
@@ -198,7 +255,7 @@ const Table = ({ data, onEdit, roles }) => {
                         </div>
                       </td>
                       {roles !== "teams" && (
-                        <td className="p-3 border-b border-blue-gray-50">
+                        <td className="p-3 border-blue-gray-50">
                           <Typography
                             variant="small"
                             color="blue-gray"
@@ -209,7 +266,7 @@ const Table = ({ data, onEdit, roles }) => {
                         </td>
                       )}
                       {roles !== "teams" && (
-                        <td className="p-3 border-b border-blue-gray-50">
+                        <td className="p-3 border-blue-gray-50">
                           <div className="w-max">
                             <Chip
                               size="sm"
@@ -221,7 +278,7 @@ const Table = ({ data, onEdit, roles }) => {
                         </td>
                       )}
                       {roles === "employee" && (
-                        <td className="p-3 border-b border-blue-gray-50">
+                        <td className="p-3 border-blue-gray-50">
                           <div className="w-max">
                             <Chip
                               size="sm"
@@ -237,7 +294,7 @@ const Table = ({ data, onEdit, roles }) => {
                         </td>
                       )}
                       {roles === "manager" && (
-                        <td className="p-3 border-b border-blue-gray-50">
+                        <td className="p-3 border-blue-gray-50">
                           <Typography
                             variant="small"
                             color={team.count > 0 ? "green" : "red"}
@@ -247,22 +304,34 @@ const Table = ({ data, onEdit, roles }) => {
                           </Typography>
                         </td>
                       )}
+
                       {roles === "taskTable" && (
-                        <td className="p-3 border-b border-blue-gray-50">
-                          <div className="inline-block">
-                            <div className="flex flex-row gap-2 cursor-pointer">
-                              <Chip
-                                size="sm"
-                                variant="ghost"
-                                value={"123"}
-                                color="blue"
-                              />
-                            </div>
+                        <td className="p-3 flex flex-col flex-wrap   border-blue-gray-50">
+                          <div
+                            className="font-bold cursor-pointer"
+                            onClick={() =>
+                              handleTaskClick({
+                                title: alltasks
+                                  .filter((task) =>
+                                    task.assignedTo.includes(_id)
+                                  )
+                                  .map((t) => t.title)
+                                  .join(", "),
+                              })
+                            }
+                          >
+                            {
+                              alltasks
+                                .filter((task) => task.assignedTo.includes(_id)) // Filter tasks
+                                .map((t) => t.title) // Map to task titles
+                                .join(", ") // Join titles with commas
+                            }
                           </div>
                         </td>
                       )}
+
                       {roles === "teams" && (
-                        <td className="p-3 border-b border-blue-gray-50">
+                        <td className="p-3 border-blue-gray-50">
                           <div className="inline-block">
                             <div className="flex flex-row gap-2 cursor-pointer">
                               {team.members.map((member, mIndex) => (
@@ -293,7 +362,7 @@ const Table = ({ data, onEdit, roles }) => {
                         </td>
                       )}
                       {roles !== "teams" && roles !== "taskTable" && (
-                        <td className="p-3 border-b border-blue-gray-50">
+                        <td className="p-3 border-blue-gray-50">
                           <Typography
                             variant="small"
                             color="blue-gray"
@@ -303,8 +372,8 @@ const Table = ({ data, onEdit, roles }) => {
                           </Typography>
                         </td>
                       )}
-                      {roles !== "teams" && (
-                        <td className="p-3 border-b border-blue-gray-50">
+                      {role == "admin" && (
+                        <td className="p-3 border-blue-gray-50">
                           <Tooltip content="Edit User">
                             <IconButton
                               variant="text"
@@ -369,6 +438,14 @@ const Table = ({ data, onEdit, roles }) => {
           onClose={closeModal}
           onSave={handleTaskSubmit}
           userDetails={currentItem}
+        />
+      )}
+      {taskShowModalOpen && (
+        <TaskShowModal
+          isOpen={taskShowModalOpen}
+          onClose={handleModalClose}
+          taskData={selectedTask}
+          onDelete={handleDeleteTask}
         />
       )}
     </div>

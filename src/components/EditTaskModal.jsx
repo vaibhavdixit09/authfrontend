@@ -13,7 +13,7 @@ const EditTaskModal = ({ isOpen, onClose, onSave, userDetails }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    status: "",
+    status: "pending",
     dueDate: "",
     assignedTo: `${userDetails._id}`,
   });
@@ -67,7 +67,7 @@ const EditTaskModal = ({ isOpen, onClose, onSave, userDetails }) => {
           value={formData.description}
           onChange={handleChange}
         />
-        <TextField
+        {/* <TextField
           margin="dense"
           name="status"
           label="Status"
@@ -76,7 +76,7 @@ const EditTaskModal = ({ isOpen, onClose, onSave, userDetails }) => {
           variant="outlined"
           value={formData.status}
           onChange={handleChange}
-        />
+        /> */}
         <div className="mt-4">
           <label className="block text-sm font-medium text-gray-700">
             Due Date
